@@ -56,6 +56,14 @@ fig2 = plot_cluster_feature_profile(features, cluster_df)
 fig2.savefig(f"{out_dir}/daily_cluster_profiles.png", dpi=150)
 print(f"  saved {out_dir}/daily_cluster_profiles.png")
 
+# Full feature table + cluster + ACORN, for the dashboard to consume directly
+features_with_cluster = features.join(cluster_df.set_index("LCLid"))
+features_with_cluster = features_with_cluster.join(
+    info_df.set_index("LCLid")[[c for c in ["Acorn", "Acorn_grouped", "stdorToU"] if c in info_df.columns]]
+)
+features_with_cluster.to_csv(f"{out_dir}/daily_cluster_features.csv")
+print(f"  saved {out_dir}/daily_cluster_features.csv")
+
 merged.to_csv(f"{out_dir}/daily_cluster_assignments.csv", index=False)
 crosstab.to_csv(f"{out_dir}/daily_cluster_acorn_crosstab.csv")
 print(f"  saved {out_dir}/daily_cluster_assignments.csv")
