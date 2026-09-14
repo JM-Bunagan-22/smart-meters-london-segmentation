@@ -87,6 +87,49 @@ folder structure above.
    combined with a non-localhost bind exposes the interactive Werkzeug
    debugger.
 
+## Results
+
+Output of the current pipeline run (`K=4`), committed under `data/processed/`:
+
+| file | contents |
+|---|---|
+| `daily_cluster_features.csv` | 5,560 households × 9 engineered features + cluster + ACORN group (feeds the dashboard directly) |
+| `daily_cluster_assignments.csv` | `LCLid`, `cluster`, ACORN group / tariff — one row per household |
+| `daily_cluster_acorn_crosstab.csv` | cluster × ACORN group, row-normalized to % |
+| `daily_k_selection.png` | elbow (inertia) + silhouette score for k=2–8 |
+| `daily_cluster_profiles.png` | z-scored feature-mean bar chart per cluster |
+
+![k selection](data/processed/daily_k_selection.png)
+![cluster profiles](data/processed/daily_cluster_profiles.png)
+
+**Cluster archetypes** (mean `avg_daily_consumption` in kWh/day, `n` households):
+
+| cluster | n | avg daily kWh | day-to-day CV | weekend/weekday ratio | reading |
+|---|---|---|---|---|---|
+| 0 | 262 | 33.3 | 0.48 | 1.00 | heavy, high-variance users |
+| 1 | 1,848 | 14.5 | 0.38 | 1.07 | moderate users, slightly weekend-heavy |
+| 2 | 3,448 | 6.1 | 0.38 | 1.06 | light users — the bulk of the panel |
+| 3 | 2 | ~0.0 | 16.9 | 0.23 | near-zero readings — likely vacant/faulty meters, not a real segment |
+
+Cluster 3 is a 2-household outlier bucket rather than a genuine archetype;
+a useful next step is to filter near-zero-consumption households out before
+clustering so `K` isn't spent isolating them.
+
+**ACORN mix per cluster** (% of households, from `daily_cluster_acorn_crosstab.csv`):
+
+| cluster | ACORN- | ACORN-U | Adversity | Affluent | Comfortable |
+|---|---|---|---|---|---|
+| 0 | 0.0 | 2.7 | 10.7 | 69.5 | 17.2 |
+| 1 | 0.1 | 0.8 | 26.4 | 42.3 | 30.5 |
+| 2 | 0.0 | 0.8 | 37.6 | 35.6 | 26.0 |
+| 3 | 0.0 | 0.0 | 50.0 | 0.0 | 50.0 |
+
+Consumption level tracks affluence directionally (cluster 0's heavy users
+skew "Affluent," cluster 2's light users skew "Adversity"/"Comfortable"),
+but the overlap is large — ACORN group alone would misclassify most
+households, which is the case for usage-based segmentation over a
+demographic-only one.
+
 ## Project plan
 
 1. ✅ **Data prep** — convert raw CSVs to parquet (`scripts/run_smart_meters.py`)
