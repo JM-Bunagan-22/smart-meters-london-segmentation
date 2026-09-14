@@ -152,4 +152,9 @@ def update_dashboard(selected_cluster):
 
 
 if __name__ == "__main__":
-    app.run(debug=True, host="0.0.0.0", port=8050)
+    # debug=True enables the interactive Werkzeug debugger, which allows
+    # arbitrary code execution -- keep it off unless DASH_DEBUG=1 is set,
+    # and never leave it on when binding beyond localhost.
+    debug = os.environ.get("DASH_DEBUG") == "1"
+    host = os.environ.get("DASH_HOST", "127.0.0.1")
+    app.run(debug=debug, host=host, port=8050)
