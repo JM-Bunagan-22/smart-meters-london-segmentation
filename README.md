@@ -40,8 +40,6 @@ and tariff type (standard vs. dynamic time-of-use).
 │   ├── segmentation_lib.py         # clustering utilities (k-selection, KMeans, ACORN cross-tab)
 │   ├── run_daily_segmentation.py   # run this second: full clustering pipeline
 │   └── dashboard.py                # interactive Dash app for exploring clusters
-├── notebooks/
-│   └── clustering_analysis.ipynb   # same pipeline as run_daily_segmentation.py, cell-by-cell
 ├── requirements.txt
 └── README.md
 ```
@@ -77,16 +75,17 @@ folder structure above.
    `data/processed/`. Review `daily_k_selection.png` and adjust `K` in the
    script if needed, then re-run.
 
-   Prefer notebooks? Open `notebooks/clustering_analysis.ipynb` instead —
-   same pipeline, run cell by cell with inline plots.
-
 3. **Explore results interactively:**
    ```bash
    python dashboard.py
    ```
-   Opens a local Dash app (`http://127.0.0.1:8050`, or a forwarded port
+   Opens a local Dash app on `http://127.0.0.1:8050` (or a forwarded port
    in Codespaces) with a cluster filter, feature profile chart, ACORN mix
-   chart, and household sample table.
+   chart, and household sample table. Set `DASH_DEBUG=1` for the
+   auto-reloading dev server, or `DASH_HOST=0.0.0.0` to bind beyond
+   localhost — only do the latter on a trusted network, since debug mode
+   combined with a non-localhost bind exposes the interactive Werkzeug
+   debugger.
 
 ## Project plan
 
